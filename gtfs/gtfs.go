@@ -1,30 +1,14 @@
 package gtfs
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/geops/gtfsparser"
 )
 
-var feed *gtfsparser.Feed
-
-func init() {
-	feedFilepath := "gtfsfeed"
-	if os.Getenv("SWMS_GTFS_PATH") != "" {
-		feedFilepath = os.Getenv("SWMS_GTFS_PATH")
-	}
-	fmt.Printf("Initializing GTFS feed from path \"%s\" ... ", feedFilepath)
-
-	feed = gtfsparser.NewFeed()
+func IngestGTFSFeed(feedFilepath string) (*gtfsparser.Feed, error) {
+	feed := gtfsparser.NewFeed()
 	err := feed.Parse(feedFilepath)
 	if err != nil {
-		fmt.Printf("Error parsing %v\n", err)
-		return
+		return feed, err
 	}
-	fmt.Println("done")
-}
-
-func Feed() *gtfsparser.Feed {
-	return feed
+	return feed, nil
 }

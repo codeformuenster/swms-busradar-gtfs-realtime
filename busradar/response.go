@@ -32,7 +32,7 @@ func NewResponseFromStatic() (*Response, error) {
 }
 
 func (s *Response) GTFSRealtimeFeedMessage() (*gtfs.FeedMessage, error) {
-	feed := gtfs.FeedMessage{}
+	feedMessage := gtfs.FeedMessage{}
 
 	creationTime := uint64(s.CreationTime.Unix())
 	version := "2.0"
@@ -41,18 +41,19 @@ func (s *Response) GTFSRealtimeFeedMessage() (*gtfs.FeedMessage, error) {
 		Incrementality:      gtfs.FeedHeader_FULL_DATASET.Enum(),
 		GtfsRealtimeVersion: &version,
 	}
-	feed.Header = &header
+	feedMessage.Header = &header
 
 	entities := []*gtfs.FeedEntity{}
 
-	t := true
-	id := "go"
-	e1 := gtfs.FeedEntity{Id: &id, IsDeleted: &t}
-	id2 := "go1"
-	e2 := gtfs.FeedEntity{Id: &id2, IsDeleted: &t}
-	entities = append(entities, &e1)
-	entities = append(entities, &e2)
-	feed.Entity = entities
+	for _, feature := range s.Features {
+		entity, err := feature.FeedEntity()
+		if err != nil {
+			return &feedMessage, err
+		}
+		entities = append(entities, entity)
+	}
 
-	return &feed, nil
+	feedMessage.Entity = entities
+
+	return &feedMessage, nil
 }

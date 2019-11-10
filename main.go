@@ -1,33 +1,35 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/codeformuenster/swms-busradar-gtfs-realtime/busradar"
-	"github.com/codeformuenster/swms-busradar-gtfs-realtime/gtfs"
+	proto "github.com/golang/protobuf/proto"
 )
 
 func main() {
-	initial, err := busradar.NewResponseFromStatic()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	feed, err := initial.GTFSRealtimeFeedMessage()
+	staticResponse, err := busradar.NewResponseFromStatic()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 
-	// initFeed()
-	str, err := json.Marshal(feed)
+	initialRealtimeFeed, err := staticResponse.GTFSRealtimeFeedMessage()
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println(string(str))
 
-	gtfs.Feed()
-	// fmt.Println(string(a))
+	pb, err := proto.Marshal(initialRealtimeFeed)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	err = ioutil.WriteFile("feed", pb, 0644)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }
