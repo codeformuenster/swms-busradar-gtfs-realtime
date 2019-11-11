@@ -12,7 +12,7 @@ fi
 curl -o /gtfsfeed/feed.zip "${feed_url}"
 
 # extract the files
-unzip /gtfsfeed/feed.zip -d /gtfs
+unzip -o /gtfsfeed/feed.zip -d /gtfsfeed
 
 # convert files to unix format
 dos2unix /gtfsfeed/*.txt
