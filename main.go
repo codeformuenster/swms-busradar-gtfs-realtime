@@ -2,16 +2,34 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"log"
 	"os"
+	"os/signal"
 	"path"
+	"time"
 
 	"github.com/codeformuenster/swms-busradar-gtfs-realtime/busradar"
 	"github.com/codeformuenster/swms-busradar-gtfs-realtime/gtfs"
-	proto "github.com/golang/protobuf/proto"
+	"github.com/geops/gtfsparser"
 )
 
+func retrieveAndPersistResponse(staticFeed *gtfsparser.Feed, realtimeFeedPath string) error {
+	staticResponse, err := busradar.NewResponseFromStatic()
+	if err != nil {
+		return err
+	}
+
+	err = staticResponse.PersistFeedMessage(staticFeed, realtimeFeedPath)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Persisted realtime feed (%s)\n", realtimeFeedPath)
+	return nil
+}
+
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.LUTC)
 	var feedPath string
 	if os.Getenv("GTFS_FEED_PATH") != "" {
 		feedPath = os.Getenv("GTFS_FEED_PATH")
@@ -19,35 +37,44 @@ func main() {
 		cwd, _ := os.Getwd()
 		feedPath = path.Join(cwd, "gtfsfeed")
 	}
-	fmt.Printf("Importing static GTFS feed from path %s ... ", feedPath)
 	staticFeed, err := gtfs.IngestGTFSFeed(feedPath)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	fmt.Println("done")
+	log.Printf("Imported static feed (%s)\n", feedPath)
 
-	staticResponse, err := busradar.NewResponseFromStatic()
-	if err != nil {
-		fmt.Println(err)
-		return
+	var realtimeFeedPath string
+	if os.Getenv("GTFS_REALTIME_FEED_PATH") != "" {
+		realtimeFeedPath = os.Getenv("GTFS_REALTIME_FEED_PATH")
+	} else {
+		cwd, _ := os.Getwd()
+		realtimeFeedPath = path.Join(cwd, "feed")
 	}
 
-	initialRealtimeFeed, err := staticResponse.FeedMessage(staticFeed)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	err = retrieveAndPersistResponse(staticFeed, realtimeFeedPath)
 
-	pb, err := proto.Marshal(initialRealtimeFeed)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	done := make(chan struct{})
 
-	err = ioutil.WriteFile("feed", pb, 0644)
-	if err != nil {
-		fmt.Println(err)
-		return
+	ticker := time.NewTicker(time.Second * 5)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-done:
+			return
+		case <-ticker.C:
+			err := retrieveAndPersistResponse(staticFeed, realtimeFeedPath)
+
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		case <-interrupt:
+			log.Println("interrupt")
+			return
+		}
 	}
 }

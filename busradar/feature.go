@@ -46,7 +46,7 @@ func (f *Feature) TripDescriptor() *gtfs.TripDescriptor {
 }
 
 func (f *Feature) VehicleDescriptor() *gtfs.VehicleDescriptor {
-	idStr := fmt.Sprintf("%s_%s", f.Properties.Fahrzeugid, f.Properties.Richtungsid)
+	idStr := fmt.Sprintf("%s_%s_%s", f.Properties.Fahrzeugid, f.Properties.Richtungsid, f.Properties.Fahrtbezeichner)
 	labelStr := fmt.Sprintf("Linie %s Richtung %s", f.Properties.Linientext, f.Properties.Richtungstext)
 	v := gtfs.VehicleDescriptor{
 		Id:    &idStr,
@@ -129,7 +129,7 @@ func (f *Feature) MatchGTFSTrip(trips map[string]*gtfsparser_gtfs.Trip) error {
 			return nil
 		}
 	}
-	return fmt.Errorf("unable to find matching trip for %s and %s",
+	return fmt.Errorf("Couldn't find matching trip for %s and %s",
 		f.Properties.Linientext,
 		f.Properties.Richtungstext,
 	)
@@ -138,7 +138,7 @@ func (f *Feature) MatchGTFSTrip(trips map[string]*gtfsparser_gtfs.Trip) error {
 func (f *Feature) FeedEntity(feed *gtfsparser.Feed) (*gtfs.FeedEntity, error) {
 	// shared stuff
 	if _, ok := feed.Stops[*f.StopId()]; ok == false {
-		return &gtfs.FeedEntity{}, fmt.Errorf("unable to find matching stop id for %s", *f.StopId())
+		return &gtfs.FeedEntity{}, fmt.Errorf("Couldn't find matching stop id for %s", *f.StopId())
 	}
 	err := f.MatchGTFSTrip(feed.Trips)
 	if err != nil {

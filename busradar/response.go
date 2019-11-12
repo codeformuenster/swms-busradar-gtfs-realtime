@@ -1,12 +1,14 @@
 package busradar
 
 import (
-	"fmt"
+	"io/ioutil"
+	"log"
 	"time"
 
 	"github.com/MobilityData/gtfs-realtime-bindings/golang/gtfs"
 	"github.com/asmcos/requests"
 	"github.com/geops/gtfsparser"
+	"github.com/golang/protobuf/proto"
 )
 
 type Response struct {
@@ -52,11 +54,30 @@ func (s *Response) FeedMessage(feed *gtfsparser.Feed) (*gtfs.FeedMessage, error)
 		if err == nil {
 			entities = append(entities, entity)
 		} else {
-			fmt.Printf("Skipping feature because %v\n", err)
+			log.Printf("Skipping FeedEntity in FeedMessage: %v\n", err)
 		}
 	}
 
 	feedMessage.Entity = entities
 
 	return &feedMessage, nil
+}
+
+func (s *Response) PersistFeedMessage(staticFeed *gtfsparser.Feed, realtimeFeedPath string) error {
+	feed, err := s.FeedMessage(staticFeed)
+	if err != nil {
+		return err
+	}
+
+	pb, err := proto.Marshal(feed)
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(realtimeFeedPath, pb, 0644)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
