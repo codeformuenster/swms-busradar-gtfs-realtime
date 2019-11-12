@@ -18,7 +18,7 @@ Container image [`quay.io/codeformuenster/swms-busradar-gtfs-realtime-init`] can
 
 ### Kubernetes deployment
 
-You'll find kubernetes manifests for running this project in your cluster in the [Code for Münster kubernetes-deployments repository].
+You'll find kubernetes manifests for running this project in your cluster in the [Code for Münster kubernetes-deployment repository].
 
 ## Development requirements
 
@@ -28,6 +28,6 @@ You'll find kubernetes manifests for running this project in your cluster in the
 [Stadtwerke Münster GTFS feed download page]: https://www.stadtwerke-muenster.de/privatkunden/mobilitaet/fahrplaninfos/fahr-netzplaene-downloads/open-data-gtfs/gtfs-download.html
 [Stadtwerke Münster Busradar]: http://api.busradar.conterra.de/
 [`/fahrzeuge`]: https://rest.busradar.conterra.de/prod/fahrzeuge
-[Code for Münster kubernetes-deployments repository]: https://github.com/codeformuenster/kubernetes-deployments/
+[Code for Münster kubernetes-deployment repository]: https://github.com/codeformuenster/kubernetes-deployment/tree/master/sources/swms-busradar-gtfs-realtime
 [`quay.io/codeformuenster/swms-busradar-gtfs-realtime`]: https://quay.io/repository/codeformuenster/swms-busradar-gtfs-realtime
 [`quay.io/codeformuenster/swms-busradar-gtfs-realtime-init`]: https://quay.io/repository/codeformuenster/swms-busradar-gtfs-realtime-init
