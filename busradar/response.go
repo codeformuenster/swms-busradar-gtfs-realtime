@@ -1,6 +1,7 @@
 package busradar
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"time"
@@ -75,6 +76,16 @@ func (s *Response) PersistFeedMessage(staticFeed *gtfsparser.Feed, realtimeFeedP
 	}
 
 	err = ioutil.WriteFile(realtimeFeedPath, pb, 0644)
+	if err != nil {
+		return err
+	}
+
+	pb, err = json.MarshalIndent(feed, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	err = ioutil.WriteFile(realtimeFeedPath+".json", pb, 0644)
 	if err != nil {
 		return err
 	}
