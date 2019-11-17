@@ -51,7 +51,7 @@ func (s *Response) FeedMessage(feed *gtfsparser.Feed) (*gtfs.FeedMessage, error)
 	entities := []*gtfs.FeedEntity{}
 
 	for _, feature := range s.Features {
-		entity, err := feature.FeedEntity(feed)
+		entity, err := feature.FeedEntity(feed, creationTime)
 		if err == nil {
 			entities = append(entities, entity)
 		} else {

@@ -135,7 +135,7 @@ func (f *Feature) MatchGTFSTrip(trips map[string]*gtfsparser_gtfs.Trip) error {
 	)
 }
 
-func (f *Feature) FeedEntity(feed *gtfsparser.Feed) (*gtfs.FeedEntity, error) {
+func (f *Feature) FeedEntity(feed *gtfsparser.Feed, creationTime uint64) (*gtfs.FeedEntity, error) {
 	// shared stuff
 	if _, ok := feed.Stops[*f.StopId()]; ok == false {
 		return &gtfs.FeedEntity{}, fmt.Errorf("Couldn't find matching stop id for %s", *f.StopId())
@@ -145,12 +145,11 @@ func (f *Feature) FeedEntity(feed *gtfsparser.Feed) (*gtfs.FeedEntity, error) {
 		return &gtfs.FeedEntity{}, err
 	}
 	tripDescriptor := f.TripDescriptor()
-	timestamp := f.Timestamp()
 
 	vehiclePosition := gtfs.VehiclePosition{
 		Trip:                tripDescriptor,
 		Vehicle:             f.VehicleDescriptor(),
-		Timestamp:           timestamp,
+		Timestamp:           &creationTime,
 		Position:            f.Position(),
 		CurrentStopSequence: f.StopSequence(),
 		StopId:              f.StopId(),
@@ -164,7 +163,7 @@ func (f *Feature) FeedEntity(feed *gtfsparser.Feed) (*gtfs.FeedEntity, error) {
 	tripUpdate := gtfs.TripUpdate{
 		Trip:           tripDescriptor,
 		Vehicle:        f.VehicleDescriptor(),
-		Timestamp:      timestamp,
+		Timestamp:      &creationTime,
 		Delay:          f.Delay(),
 		StopTimeUpdate: f.StopTimeUpdate(),
 	}
