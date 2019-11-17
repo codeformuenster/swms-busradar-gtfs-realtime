@@ -66,10 +66,10 @@ func (f *Feature) Delay() *int32 {
 }
 
 func (f *Feature) StopTimeEvent() *gtfs.TripUpdate_StopTimeEvent {
-	stopTimeTime := int64(*f.Timestamp())
+	// stopTimeTime := int64(*f.Timestamp())
 	ste := gtfs.TripUpdate_StopTimeEvent{
 		Delay: f.Delay(),
-		Time:  &stopTimeTime,
+		// Time:  &stopTimeTime,
 	}
 	return &ste
 }
